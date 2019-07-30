@@ -5,6 +5,9 @@ CREATE TABLE Customers(
 	driving_license_number varchar(20) NULL,
     PRIMARY KEY (first_name, last_name, birth_date)
 );
+CREATE TABLE Rooms(
+	room int NOT NULL PRIMARY KEY
+);
 CREATE TABLE Stays(
     first_name varchar(255) NOT NULL,
     last_name varchar(255) NOT NULL,
@@ -17,6 +20,3 @@ CREATE TABLE Stays(
     FOREIGN KEY (first_name, last_name, birth_date) REFERENCES Customers (first_name, last_name, birth_date),
     FOREIGN KEY (room) REFERENCES Rooms (room)
 );
-CREATE TABLE Rooms(
-	room int NOT NULL PRIMARY KEY
-)

@@ -27,9 +27,8 @@ def find_customer():
         return render_template("find_customer.html")
     elif request.method == "POST":
         data = request.form
-        print(data)
         db = get_db()
-        cursor = db.cursor()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         if (data['birthdate']==''):
             bdate = '01-01-1200'
         else:
@@ -41,12 +40,12 @@ def find_customer():
             (birth_date - '{bdate}' = 0 OR '{bdate2}' = '') AND
             (upper(driving_license_number) = upper('{license}') OR '{license}' = '')
             """.format(fname=data['firstname'],lname=data['lastname'], bdate=bdate,bdate2=data['birthdate'],license=data['driverslicense']))
-        temp = cursor.fetchall()
+        data = dict(cursor.fetchall())
         # if find, redirect to checkin page
         #else add customer
-        return "finding customer!"
+        return render_template("select_customer.html",data=data)
 
-# @bp.route("/addcustomer", methods=("GET","POST"))
+# @bp.route("/selectcustomer", methods=("GET","POST"))
 
 @bp.route("/checkin/<id>", methods=("GET", "POST"))
 def check_in(id):

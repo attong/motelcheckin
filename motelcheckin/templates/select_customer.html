@@ -1,20 +1,36 @@
+{% extends "base.html" %}
+
+{% block body %}
 <h1>The following customers match your query.</h1>
 
 <table style="width:100%">
 	<tr>
+		<th>Select this Customer</th>
 		<th>First Name</th>
 		<th>Last Name</th>
 		<th>License Number</th>
 		<th>Date of Birth</th>
+		<th>Notes</th>
 	</tr>
 {% if data != None%}
 	{% for rows in data%}
 		<tr>
-			<td></td>
-			<td></td>
-			<td></td>
-			<td></td>
+			<td>
+				<form action='/checkinform' method = 'POST'>
+					<input type="hidden" name="first_name" value={{dict(rows)['first_name']}} />
+                    <input type="hidden" name="last_name" value={{dict(rows)['last_name']}} />
+                    <input type="hidden" name="birth_date" value='{{dict(rows)['birth_date']}}' />
+                    <input type="hidden" name="notes" value='{{dict(rows)['notes']}}' />
+                    <input type="submit" value="Check in this customer">
+				</form>
+			</td>
+			<td>{{dict(rows)['first_name']}}</td>
+			<td>{{dict(rows)['last_name']}}</td>
+			<td>{{dict(rows)['driving_license_number']}}</td>
+			<td>{{dict(rows)['birth_date']}}</td>
+			<td>{{dict(rows)['notes']}}
 		</tr>
 	{%endfor%}
 {% endif %}
 </table>
+{% endblock %}

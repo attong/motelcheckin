@@ -1,9 +1,81 @@
+{% extends "base.html" %}
+
+{% block body %}
 <h1>Check in page</h1>
 
-<form>
-	First name*:<input type="text" name="firstname" required>
-	<br>Last name*:<input type="text" name="lastname" required>
-	<br>Driver's License:<input type="text" name="driverslicense">
-	<br>Date of Birth*: <input type="date" name="birthdate" required>
-	<input type="submit">
+First name: {{data['first_name']}} <br>
+Last name: {{data['last_name']}} <br>
+Date of Birth: {{data['birth_date']}} <br>
+Notes: {{data['Notes']}} <br><br>
+
+<form name="form1" action="/checkin" method='POST'>
+    <input type="hidden" name="first_name" value={{dict(data)['first_name']}} />
+    <input type="hidden" name="last_name" value={{dict(data)['last_name']}} />
+    <input type="hidden" name="birth_date" value={{dict(data)['birth_date']}} />
+    Room #: <select name="room" required style="width:200px;" onchange="calc()" ">
+        {% for rooms in avail_rooms%}
+            <option value='{"room": {{dict(rooms)["room"]}},"type":"{{dict(rooms)["type"]}}"}' >{{dict(rooms)['room']}} - {{dict(rooms)['type']}}</option>
+        {%endfor%}
+    </select><br>
+    Check in date:
+    <input type="date" name="check_in_date" id="check_in" required onchange="calc()">
+    Check out date:
+    <input type="date" name="check_out_date" required onchange="calc()"><br>
+    Number of Adults: <input type="number" required name="adults" id="adults" value='0' min='0' step='1' onchange="calc()"><br>
+    Number of Children: <input type="number" required name="children" id="children" value='0' min='0' step='1'><br>
+    Price: <p id='calc'></p>
+    <br>$<input type="number" required name="price" id="price" value='0.00'><br>
+    <input type="submit" id="btn" value="check in">
 </form>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js">
+</script>
+<script type="text/javascript">
+document.getElementById("price").onchange = function(){myFunction()};
+function calc() {
+    var room = document.forms["form1"]["room"].value;
+    var checkin = document.forms["form1"]["check_in_date"].value;
+    var checkout = document.forms["form1"]["check_out_date"].value;
+    var adults = document.forms["form1"]["adults"].value;
+    var roomParsed = JSON.parse(room);
+    if (checkout.length * room.length * checkin.length > 0){
+        if (checkout<checkin){
+            alert("Check out date must be after check in date!");
+            document.getElementById("btn").disabled = true;
+        } else if (adults>4 || (adults>3 && roomParsed['type']=='single')){
+            alert("Too many adults!");
+            document.getElementById("btn").disabled = true;
+        }else{
+            document.getElementById("btn").disabled = false;
+            var checkin = new Date(checkin);
+            var checkout = new Date(checkout);
+            var days = ( Math.round((checkout-checkin)/8.64e7));
+            var checkinfee= 5;
+            var rate =0 ;
+            if (roomParsed['type'] == 'single'){
+                rate = 60
+            } else{
+                rate = 70
+            }
+            var discount = 0
+            var statement = "";
+            if (days<7){
+                statement = "Checkin fee: $" + checkinfee.toString() + " + " +days.toString() + " days * $" + rate.toString();
+            } else{
+                discount = (Math.floor(days/7) * rate) + 5
+                statement = "Checkin fee: $" + checkinfee.toString() + " + " +days.toString() + " days * $" + rate.toString() + " - $" + discount.toString()+ " (Discount for >1 week)";
+            }
+            var penalty = 0;
+            if (adults >3 || (adults>2 && roomParsed['type']=='single')){
+                penalty = 10;
+                statement = statement + "+ $" + penalty + " (extra adult penalty)";
+            }
+            var price = checkinfee + (days * rate) - discount + penalty;
+            document.getElementById("calc").innerHTML = statement;
+            document.getElementById("price").value= price;
+        }
+    };
+}
+</script>
+
+{% endblock %}

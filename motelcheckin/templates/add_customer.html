@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block body %}
+<h1>Add customer page</h1>
+
+<form action="/addcustomer" method="post">
+	First name*:<input type="text" name="firstname" required>
+	<br>Last name*:<input type="text" name="lastname" required>
+	<br>Driver's License:<input type="text" name="driverslicense">
+	<br>Date of Birth*: <input type="date"  required name="birthdate">
+    <br>Special Notes (ok to leave blank): <input type="text" name="notes"><br>
+    <input type="submit">
+</form>
+{% endblock %}

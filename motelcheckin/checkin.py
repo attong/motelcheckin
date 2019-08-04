@@ -15,6 +15,7 @@ from flask import url_for
 from flask import jsonify
 from flask import session
 from flask import abort
+import json
 
 
 from db import get_db
@@ -24,6 +25,20 @@ bp = Blueprint("checkin", __name__)
 @bp.route("/")
 def index():
     return redirect("/findcustomer")
+
+@bp.route("/addcustomer", methods=("GET", "POST"))
+def add_customer():
+    if request.method == "GET":
+        return render_template("add_customer.html")
+    elif request.method == "POST":
+        data = request.form
+        print(data)
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        # cursor.execute("""
+        #     INSERT INTO Customers VALUES ('{fname}','{lanme}','{bdate}','{license}','{notes}')
+        #     """.format(fname=data['firstname'],lname=data['lastname'], bdate=bdate,bdate2=data['birthdate'],license=data['driverslicense'],notes=data['notes']))
+        return "TODO"
 
 @bp.route("/findcustomer", methods=("GET", "POST"))
 def find_customer():
@@ -68,13 +83,19 @@ def check_in():
     if (data['check_in_date'] >= data['check_out_date']):
         flash("Error. Check out date must be after check in date!")
         return redirect("/findcustomer")
+    room= json.loads(data['room'])
+    print(room['room'])
     cursor.execute("""
         UPDATE Rooms SET Occupied = TRUE WHERE Room = {}
-        """.format(data['room']))
+        """.format(room['room']))
     cursor.execute("""
         INSERT INTO Stays VALUES
-        ('{fname}','{lname}','{bdate}','{checkin}','{checkout}','{status}',{room})
-        """.format(fname=data['first_name'],lname=data['last_name'],bdate=data['birth_date'],checkin=data['check_in_date'],checkout=data['check_out_date'],status='Checked In', room=data['room']))
+        ('{fname}','{lname}','{bdate}','{checkin}','{checkout}','{status}',{adults},{children}, {room})
+        """.format(fname=data['first_name'],lname=data['last_name'],bdate=data['birth_date'],checkin=data['check_in_date'],checkout=data['check_out_date'],status='Checked In', adults=data['adults'], children=data['children'], room = room['room']))
+    cursor.execute("""
+        INSERT INTO Stayperiods VALUES
+        ('{fname}','{lname}','{bdate}','{checkin}','{checkin}','{checkout}', {price})
+        """.format(fname=data['first_name'],lname=data['last_name'],bdate=data['birth_date'],checkin=data['check_in_date'],checkout=data['check_out_date'],price=data['price']))
     db.commit()
     flash("Check in Successful!")
     return redirect("findcustomer")

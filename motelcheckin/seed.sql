@@ -13,8 +13,8 @@ INSERT INTO Rooms VALUES (1, FALSE, 'single'),(2, FALSE, 'single'),
 (8, FALSE, 'double'),(9, FALSE, 'double'),(10, FALSE, 'double');
 
 INSERT INTO Stays VALUES
-('derek','sun','9/12/93','1/1/2010','1/2/2010','checked out',3),
-('matt','decaro','5/20/93','1/5/2010','1/3/2010','checked out',4);
+('derek','sun','9/12/93','1/1/2010','1/2/2010','checked out',1,0,3),
+('matt','decaro','5/20/93','1/5/2010','1/3/2010','checked out',2,0,4);
 
 INSERT INTO Stayperiods VALUES
 ('derek','sun','9/12/93','1/1/2010','1/1/2010','1/2/2010','65'),

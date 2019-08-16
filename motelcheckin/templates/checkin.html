@@ -3,15 +3,14 @@
 {% block body %}
 <h1>Check in page</h1>
 
+Customer ID: {{data['cu_id']}} <br>
 First name: {{data['first_name']}} <br>
 Last name: {{data['last_name']}} <br>
 Date of Birth: {{data['birth_date']}} <br>
 Notes: {{data['Notes']}} <br><br>
 
 <form name="form1" action="/checkin" method='POST'>
-    <input type="hidden" name="first_name" value={{dict(data)['first_name']}} />
-    <input type="hidden" name="last_name" value={{dict(data)['last_name']}} />
-    <input type="hidden" name="birth_date" value={{dict(data)['birth_date']}} />
+    <input type="hidden" name="cu_id" value={{data['cu_id']}} />
     Room #: <select name="room" required style="width:200px;" onchange="calc()" ">
         {% for rooms in avail_rooms%}
             <option value='{"room": {{dict(rooms)["room"]}},"type":"{{dict(rooms)["type"]}}"}' >{{dict(rooms)['room']}} - {{dict(rooms)['type']}}</option>
@@ -23,6 +22,7 @@ Notes: {{data['Notes']}} <br><br>
     <input type="date" name="check_out_date" required onchange="calc()"><br>
     Number of Adults: <input type="number" required name="adults" id="adults" value='0' min='0' step='1' onchange="calc()"><br>
     Number of Children: <input type="number" required name="children" id="children" value='0' min='0' step='1'><br>
+    Number of Pets: <input type="number" required name="pets" id="pets" value='0' min='0' step='1'><br>
     Price: <p id='calc'></p>
     <br>$<input type="number" required name="price" id="price" value='0.00'><br>
     <input type="submit" id="btn" value="check in">
@@ -31,6 +31,11 @@ Notes: {{data['Notes']}} <br><br>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js">
 </script>
 <script type="text/javascript">
+var d = new Date()
+d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+date = d.toISOString().substring(0, 10);
+document.getElementById('check_in').value = date;
+// document.getElementById('check_in').disabled = true;
 function calc() {
     var room = document.forms["form1"]["room"].value;
     var checkin = document.forms["form1"]["check_in_date"].value;
@@ -38,7 +43,7 @@ function calc() {
     var adults = document.forms["form1"]["adults"].value;
     var roomParsed = JSON.parse(room);
     if (checkout.length * room.length * checkin.length > 0){
-        if (checkout<checkin){
+        if (checkout<=checkin){
             alert("Check out date must be after check in date!");
             document.getElementById("btn").disabled = true;
         } else if (adults>4 || (adults>3 && roomParsed['type']=='single')){

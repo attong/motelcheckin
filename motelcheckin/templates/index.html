@@ -1,4 +1,30 @@
 {% extends "base.html" %}
 
+
 {% block body %}
+    <table class = 'table'>
+        <thead class="thead-dark">
+            <tr>
+            {%for i in data[0]%}
+                    <th>{{i}}</th>
+            {%endfor%}
+            </tr>
+        </thead>
+        <tbody>
+            {%for rows in data%}
+                <tr>
+                {% for items in rows %}
+                    <td>{% if items == 'cu_id' and rows[items] != None%}
+                        <a href="customers/{{rows[items]}}">{{rows[items]}}</a>
+                        {% elif items == 'stay_id' and rows[items] != None%}
+                        <a href="stays/{{rows[items]}}">{{rows[items]}}</a>
+                        {%else%}
+                        {{rows[items]}}
+                        {%endif%}
+                    </td>
+                {%endfor%}
+                </tr>
+            {%endfor%}
+        </tbody>
+    </table>
 {% endblock %}

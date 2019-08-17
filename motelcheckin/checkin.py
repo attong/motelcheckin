@@ -26,12 +26,26 @@ bp = Blueprint("checkin", __name__)
 def index():
     db = get_db()
     cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    cursor.execute("""
-        SELECT * FROM stays right join 
-        (SELECT rooms.room, min(check_in_date) FROM stays right join rooms on stays.room=rooms.room GROUP BY rooms.room) AS X on stays.room = X.room;
-
+    cursor.execute("""SELECT rooms.room, customers.cu_id, stay_id, first_name, last_name, blacklist, customers.notes, check_in_date, check_out_date, status, type, occupied, numadults as adults, numchildren as children, num_pets as pets FROM customers right join (SELECT * FROM STAYS WHERE status = 'Checked In') AS X ON customers.cu_id=X.cu_id Right Join Rooms on X.room = Rooms.room ORDER BY Rooms.room ASC;
         """)
-    return redirect("/findcustomer")
+    data = cursor.fetchall()
+    return render_template("index.html",data=data)
+
+@bp.route("/customers/<id>", methods=("GET",))
+def customer(id):
+    if request.method == "GET":
+        try:
+            db = get_db()
+            cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+            cursor.execute("""SELECT * FROM Customers WHERE cu_id = {}""".format(id))
+            customer = cursor.fetchall()
+            customer =dict(customer[0])
+            return render_template("customer.html", customer=customer)
+        except:
+            flash("Customer ID does not exist!")
+            redirect("/")
+
+
 
 @bp.route("/addcustomer/", methods=("GET", "POST"))
 def add_customer():

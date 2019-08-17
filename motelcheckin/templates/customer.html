@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block body %}
+<h1>Customer Detail Page</h1>
+
+<li>Customer ID: {{customer['cu_id']}}</li>
+<li>Name: {{customer['first_name']}} {{customer['last_name']}}</li>
+<li>Birthdate: {{customer['birth_date']}}</li>
+<li>ID Type: {{customer['id_type']}}</li>
+<li>ID: {{customer['identification']}}</li>
+<li>Blacklisted?: {{customer['blacklist']}}</li>
+<li>Notes: {{customer['notes']}}</li>
+<form action="/addcustomer/" method="post">
+	First name*:<input type="text" name="firstname" required>
+	<br>Last name*:<input type="text" name="lastname" required>
+	<br>Driver's License:<input type="text" name="driverslicense">
+	<br>Date of Birth*: <input type="date"  required name="birthdate">
+    <br>Special Notes (ok to leave blank): <input type="text" name="notes"><br>
+    <input type="submit">
+</form>
+{% endblock %}

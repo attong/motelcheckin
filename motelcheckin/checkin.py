@@ -31,19 +31,23 @@ def index():
     data = cursor.fetchall()
     return render_template("index.html",data=data)
 
-@bp.route("/customers/<id>", methods=("GET",))
+@bp.route("/customer/<id>", methods=("GET",))
 def customer(id):
     if request.method == "GET":
         try:
             db = get_db()
             cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-            cursor.execute("""SELECT * FROM Customers WHERE cu_id = {}""".format(id))
-            customer = cursor.fetchall()
-            customer =dict(customer[0])
-            return render_template("customer.html", customer=customer)
+            cursor.execute("""SELECT * FROM Customers WHERE cu_id = {};""".format(id))
+            customer = cursor.fetchone()
+            customer =dict(customer)
+            cursor.execute("""
+                SELECT stay_id, check_in_date, check_out_date, status, numadults, numchildren, num_pets, room FROM Stays WHERE cu_id = {} ORDER BY check_in_date DESC;
+                """.format(id))
+            stays = cursor.fetchall()
+            return render_template("customer.html", customer=customer,stays = stays)
         except:
             flash("Customer ID does not exist!")
-            redirect("/")
+            return redirect("/")
 
 
 
@@ -109,6 +113,23 @@ def checkinform():
         """)
     avail_rooms = cursor.fetchall()
     return render_template("checkin.html",data=data, avail_rooms=avail_rooms)
+
+@bp.route("/updateblacklist",methods=("POST",))
+def updateblacklist():
+    data = request.form.to_dict()
+    db = get_db()
+    cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    try:
+        cursor.execute("""
+            UPDATE Customers Set Blacklist='{bl}',Notes='{notes}' WHERE cu_id='{cu_id}';
+            """.format(bl=data['blacklisted'],notes=data['notes'],cu_id=data['cu_id']))
+        db.commit()
+        flash("successfully updated customer information!")
+        return redirect("/customer/{}".format(data['cu_id']))
+    except:
+        flask("failed update!")
+        return redirect("/customer/{}".format(data['cu_id']))
+
 
 @bp.route("/checkin", methods=("POST",))
 def check_in():

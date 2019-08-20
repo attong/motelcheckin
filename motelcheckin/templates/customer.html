@@ -1,21 +1,65 @@
 {% extends "base.html" %}
 
 {% block body %}
-<h1>Customer Detail Page</h1>
+<h1 id='h1'>Customer Detail Page</h1> 
 
 <li>Customer ID: {{customer['cu_id']}}</li>
 <li>Name: {{customer['first_name']}} {{customer['last_name']}}</li>
 <li>Birthdate: {{customer['birth_date']}}</li>
 <li>ID Type: {{customer['id_type']}}</li>
 <li>ID: {{customer['identification']}}</li>
-<li>Blacklisted?: {{customer['blacklist']}}</li>
+<li>Blacklisted: {{customer['blacklist']}}</li>
 <li>Notes: {{customer['notes']}}</li>
-<form action="/addcustomer/" method="post">
-	First name*:<input type="text" name="firstname" required>
-	<br>Last name*:<input type="text" name="lastname" required>
-	<br>Driver's License:<input type="text" name="driverslicense">
-	<br>Date of Birth*: <input type="date"  required name="birthdate">
-    <br>Special Notes (ok to leave blank): <input type="text" name="notes"><br>
-    <input type="submit">
+
+<button id='btn'>Edit </button>
+<form id='form' style="visibility:hidden;" action='/updateblacklist' method = 'POST'>
+    <h3>Update blacklist/notes here:</h3>
+    <input type="hidden" name="cu_id" value={{customer['cu_id']}} />
+    <br>Blacklisted:
+    <select required name='blacklisted'>
+      <option value="true">True</option>
+      <option value="false">False</option>
+    </select>
+    <br>
+    Notes:
+    <input required type="text" name='notes'>
+    <br>
+    <input type="submit" value="Update">
 </form>
+
+<h2>Stays</h2>
+<table class = 'table'>
+    <thead class="thead-dark">
+        <tr>
+        {%for i in stays[0]%}
+            <th>{{i}}</th> 
+        {%endfor%}
+        </tr>
+    </thead>
+    <tbody>
+        {%for rows in stays%}
+            <tr>
+            {%for items in rows%}
+                <td>
+                {%if items=='stay_id'%}
+                <a href='/stays/{{rows[items]}}'>
+                    {{rows[items]}}
+                </a>
+                {% else%}
+                {{rows[items]}}
+                {%endif%}
+                </td>
+            {%endfor%}
+            </tr>
+        {%endfor%}
+    </tbody>
+</table>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js">
+</script>
+<script type="text/javascript">
+$("#btn").click( function() {
+    $("#form").css('visibility', 'visible');
+});
+</script>
 {% endblock %}
+

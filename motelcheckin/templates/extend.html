@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block body %}
+{%for items in stay%}
+    <li>{{items}}:  {{stay[items]}}</li>
+{%endfor%}
+
+<form>
+
+Current Check out date:<input type="date" name="check_out_date" value={{stay['check_out_date']}} required disabled='true'>
+New Check out date: 
+<input type="date" name="check_out_date" value={{stay['check_out_date']}} required >
+
+</form>
+{% endblock %}

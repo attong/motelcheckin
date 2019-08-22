@@ -75,13 +75,50 @@ def add_customer():
             flash("Add Customer Successful!")
             return redirect("/findcustomer")
         except:
-            flask("Insertion failed. Please verify data is correct")
+            flash("Insertion failed. Please verify data is correct")
             return redirect("/findcustomer")
+
+
+@bp.route("/extend/<id>", methods=("GET","POST"))
+def extend(id):
+    if request.method == "GET":
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cursor.execute("""SELECT * FROM Stays WHERE stay_id={}""".format(id))
+        stay = dict(cursor.fetchone())
+        return render_template("extend.html",stay=stay)
+    else:
+        return "post"
+
+@bp.route("/stay/<id>", methods=("GET",))
+def stay(id):
+    if request.method == "GET":
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cursor.execute("""SELECT * FROM Stays WHERE stay_id = {};""".format(id))
+        stay = dict(cursor.fetchone())
+        cursor.execute("""SELECT * FROM stayperiods WHERE stay_id ={};""".format(id))
+        periods= cursor.fetchall()
+        cursor.execute("""SELECT * FROM Payments WHERE stay_id={};""".format(id))
+        payments=cursor.fetchall()
+        return render_template("view_stay.html",stay = stay, periods=periods,payments=payments)
+
+@bp.route("/blacklist", methods=("GET",))
+def blacklist():
+    db = get_db()
+    cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cursor.execute("""SELECT * FROM Customers WHERE blacklist='true';""")
+    blacklist= cursor.fetchall()
+    return render_template('blacklist.html',blacklist=blacklist)
 
 @bp.route("/findcustomer", methods=("GET", "POST"))
 def find_customer():
     if request.method == "GET":
-        return render_template("find_customer.html")
+        db = get_db()
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cursor.execute("""SELECT * FROM customers ORDER BY cu_id DESC limit 50;""")
+        data=cursor.fetchall()
+        return render_template("find_customer.html",data=data)
     elif request.method == "POST":
         data = request.form
         db = get_db()
@@ -127,7 +164,7 @@ def updateblacklist():
         flash("successfully updated customer information!")
         return redirect("/customer/{}".format(data['cu_id']))
     except:
-        flask("failed update!")
+        flash("failed update!")
         return redirect("/customer/{}".format(data['cu_id']))
 
 

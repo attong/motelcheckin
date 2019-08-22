@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block body %}
+<div>
+    <h1 style="display:inline">Stay #{{stay['stay_id']}}        </h1>
+    <a href="/extend/{{stay['stay_id']}}"> Extend Stay</a>
+</div>
+
+{%for keys in stay%}
+    <li class='list-group-item'>{{keys}}: {{stay[keys]}}</li>
+{% endfor %}
+
+<h2> Stay Periods </h2>
+<table class="table">
+<tr>
+    {%for items in periods[0]%}
+        <th>{{items}}</th>
+    {%endfor%}
+</tr>
+{%for period in periods%}
+    <tr>
+    {%for items in period%}
+        <td>{{period[items]}}</td>
+    {%endfor%}
+    </tr>
+{%endfor%}
+</table>
+<h2> Payments </h2>
+<table class="table">
+    <tr><th>stay_id</th><th>cu_id</th><th>Date</th><th>amount</th></tr>
+    {%for rows in payments%}
+        {%for items in rows%}
+            {{items}}
+        {%endfor%}
+    {%endfor%}
+</table>
+{% endblock %}
